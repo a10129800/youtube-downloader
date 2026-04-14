@@ -18,6 +18,9 @@ def download_video(url):
         'format': 'best',
         'outtmpl': output_template,
         'noplaylist': True,
+        'quiet': True,
+        'no_warnings': True,
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' # 偽裝成瀏覽器
     }
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
