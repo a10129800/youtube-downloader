@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>我的專屬 YouTube 下載器</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; background-color: #f4f7f6; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 400px; text-align: center; }
+        
+        /* 運用你之前學的標籤概念做標題 */
+        .title { font-size: 24px; margin-bottom: 20px; font-weight: bold; color: #333; }
+        .tag-text { font-size: 0.4em; color: #4577EB; display: block; border-top: 1px solid #4577EB; margin-top: -5px; }
+
+        input { width: 90%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+        button { background-color: #4577EB; color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        button:hover { background-color: #345bb5; }
+        .status { margin-top: 20px; color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <div class="title">
+        YouTube 下載器
+        <span class="tag-text">YOUTUBE DOWNLOADER</span>
+    </div>
+    <input type="text" name="url" placeholder="請貼上 YouTube 影片網址..." required>
+    <br>
+    <button type="button" onclick="startDownload()">開始下載</button>
+    <div class="status" id="status">準備就緒</div>
+</div>
+
+    <script>
+    function startDownload() {
+        const urlInput = document.querySelector('input[name="url"]').value;
+        const statusDiv = document.getElementById('status');
+        
+        if (!urlInput) {
+            statusDiv.innerText = "請先貼上網址！";
+            return;
+        }
+
+        statusDiv.innerText = "正在下載中，請稍候... (不要關閉視窗)";
+        statusDiv.style.color = "#4577EB";
+
+        // 這段會悄悄把網址傳給 Python，不會跳轉頁面
+        const formData = new FormData();
+        formData.append('url', urlInput);
+
+        fetch('/download', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            statusDiv.innerText = data; // 把 Python 回傳的「下載完成」顯示在畫面上
+            statusDiv.style.color = "green";
+        })
+        .catch(error => {
+            statusDiv.innerText = "發生連線錯誤！";
+            statusDiv.style.color = "red";
+        });
+    }
+</script>
+</body>
+</html>
+
