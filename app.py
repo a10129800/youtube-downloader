@@ -6,11 +6,9 @@ import time
 app = Flask(__name__)
 
 def download_video(url):
-    # 建立一個臨時資料夾來存影片
     if not os.path.exists('downloads'):
         os.makedirs('downloads')
     
-    # 用時間戳記當臨時檔名，避免多人同時下載時衝突
     timestamp = int(time.time())
     output_template = f'downloads/{timestamp}_%(title)s.%(ext)s'
     
@@ -18,18 +16,23 @@ def download_video(url):
         'format': 'best',
         'outtmpl': output_template,
         'noplaylist': True,
+        # --- 以下是強大的偽裝參數 ---
         'quiet': True,
         'no_warnings': True,
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' # 偽裝成瀏覽器
+        'nocheckcertificate': True,
+        'ignoreerrors': False,
+        'logtostderr': False,
+        'addheader': [
+            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'Accept-Language: en-US,en;q=0.9,zh-TW;q=0.8,zh;q=0.7',
+        ],
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        'referer': 'https://www.google.com/',
     }
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
-        # 取得下載後的實際完整檔案路徑
-        file_path = ydl.prepare_filename(info)
-        # 修正檔名（有些情況下 ydl 返回的路徑會跟實際存的不完全一樣）
-        actual_path = file_path.replace('%(ext)s', info['ext'])
-        return actual_path
+        return ydl.prepare_filename(info)
 
 @app.route('/')
 def index():
